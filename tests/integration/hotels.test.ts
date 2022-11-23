@@ -142,11 +142,47 @@ describe("GET /hotels/:hotelId", () => {
   
       const hotel = await createHotel();
 
-      await createRoom(hotel.id);
+      const room = await createRoom(hotel.id);
     
       const response = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
   
       expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual([
+        {
+          id: room.id,
+          name: room.name,
+          capacity: room.capacity,
+          hotelId: room.hotelId,
+          createdAt: room.createdAt.toISOString(),
+          updatedAt: room.updatedAt.toISOString(),
+        }
+      ]);
+    });
+
+    it("should respond with status 200 and with existing hotels data when legnth greater than 1", async () => {
+      const token = await generateValidToken();
+    
+      const hotel = await createHotel();
+  
+      const room = await createRoom(hotel.id);
+
+      await createRoom(hotel.id);
+      
+      const response = await server.get(`/hotels/${hotel.id}`).set("Authorization", `Bearer ${token}`);
+    
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: room.id,
+            name: room.name,
+            capacity: room.capacity,
+            hotelId: room.hotelId,
+            createdAt: room.createdAt.toISOString(),
+            updatedAt: room.updatedAt.toISOString(),
+          })
+        ])
+      );
     });
   });
 });
