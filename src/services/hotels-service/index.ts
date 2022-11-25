@@ -2,6 +2,7 @@ import { notFoundError, unauthorizedError } from "@/errors";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import hotelRepository from "@/repositories/hotels-repository";
 import ticketRepository from "@/repositories/ticket-repository";
+import { TicketStatus } from "@prisma/client";
 
 async function verifyIfUserHasTicket(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
@@ -21,6 +22,10 @@ async function verifyIfUserHasTicket(userId: number) {
   }
 
   if(!ticket.TicketType.includesHotel) {
+    throw unauthorizedError();
+  }
+
+  if(ticket.status === TicketStatus.RESERVED) {
     throw unauthorizedError();
   }
 }

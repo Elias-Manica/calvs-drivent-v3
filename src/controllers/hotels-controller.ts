@@ -36,6 +36,9 @@ export async function getRoomByHotelId(req: AuthenticatedRequest, res: Response)
     if (error.name === "UnauthorizedError") {
       return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
+    if(error.name === "NotFoundError") {
+      return res.status(httpStatus.NOT_FOUND).send([]);
+    }
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
